@@ -24,10 +24,11 @@ describe("Index page", () => {
 }`);
   });
 
-  // TODO: Complete this test suite once implementation is complete
-  xit('should evaluate the expression when the "run" button is clicked', () => {
+  it('should evaluate the expression when the run button is clicked', () => {
     fireEvent.click(screen.getByTestId("run-button"));
 
-    fail("Implement me!");
+    expect(screen.getByTestId("output")).toHaveValue("8");
+    expect(screen.getByTestId("success-message")).toBeInTheDocument();
+    expect(screen.queryByTestId("error-message")).not.toBeInTheDocument();
   });
 });

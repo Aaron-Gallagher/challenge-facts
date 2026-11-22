@@ -62,7 +62,6 @@ textarea + button {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-dark-background-1: #ffffff;
     --color-white-background: #293140;
   }
 

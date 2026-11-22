@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FunctionComponent, useState } from "react";
-
+import { run, RunResult } from "../dsl/run";
 import styles from "./page.module.css";
 
 interface DSLExample {
@@ -67,7 +67,12 @@ const examples: readonly DSLExample[] = [
 
 const Home: FunctionComponent = () => {
   const [expression, setExpression] = useState<string>(examples[0].dsl);
-  const setDsl = (dsl: string) => () => setExpression(dsl);
+  const [result, setResult] = useState<RunResult | null>(null);
+  const setDsl = (dsl: string) => () => {
+    setExpression(dsl);
+    setResult(null);
+  };
+  const runQuery = () => setResult(run(expression));
 
   return (
     <main className={styles.container}>
@@ -111,18 +116,30 @@ const Home: FunctionComponent = () => {
           data-testid="expression-input"
           placeholder="Enter your DSL"
           value={expression}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-            setExpression(e.target.value)
-          }
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+            setExpression(e.target.value);
+            setResult(null);
+          }}
           rows={8}
-        ></textarea>
-        <div className={[styles.message, styles.messageSuccess].join(" ")}>
-          DSL query ran successfully!
-        </div>
-        <div className={[styles.message, styles.messageError].join(" ")}>
-          There is a problem with your DSL query.
-        </div>
-        <button data-testid="run-button" type="button">
+        />
+        {result?.ok && (
+          <div
+            className={[styles.message, styles.messageSuccess].join(" ")}
+            data-testid="success-message"
+          >
+            DSL query ran successfully!
+          </div>
+        )}
+        {result && !result.ok && (
+          <div
+            className={[styles.message, styles.messageError].join(" ")}
+            data-testid="error-message"
+            role="alert"
+          >
+            {result.message}
+          </div>
+        )}
+        <button data-testid="run-button" type="button" onClick={runQuery}>
           Run
         </button>
       </div>
@@ -135,7 +152,9 @@ const Home: FunctionComponent = () => {
           className={styles.field}
           readOnly
           rows={1}
-        ></textarea>
+          value={result?.ok ? String(result.value) : ""}
+          data-testid="output"
+        />
       </div>
     </main>
   );
